@@ -4,7 +4,7 @@ export default class AcessoConcorrenteAoBuffer {
         this.legthBuffer = legthBuffer;
         this.emptySlots = new Semaphore(this.legthBuffer);
         this.fullSlots = new Semaphore(0);
-        this.buffer = [];
+        this.buffer = new Array(this.legthBuffer);
         this.in = 0;
         this.out = 0;
     }
