@@ -1,9 +1,12 @@
 export default class AcessoConcorrenteAoBuffer {
     constructor(legthBuffer = 5, Mutex, Semaphore){
         this.criticalRegion = new Mutex();
-        this.emptySlots = new Semaphore(legthBuffer);
+        this.legthBuffer = legthBuffer;
+        this.emptySlots = new Semaphore(this.legthBuffer);
         this.fullSlots = new Semaphore(0);
         this.buffer = [];
+        this.in = 0;
+        this.out = 0;
     }
 
    async produzir(item){
@@ -11,7 +14,8 @@ export default class AcessoConcorrenteAoBuffer {
         try{
             await this.criticalRegion.adquire();
             try{
-                this.buffer.push(item);
+                this.buffer[this.in % this.legthBuffer] = item;
+                this.in++;
             }finally{
                 await this.criticalRegion.release();
             }
@@ -30,7 +34,8 @@ export default class AcessoConcorrenteAoBuffer {
         try {
             await this.criticalRegion.adquire();
             try {
-                item = this.buffer.shift();
+                item = this.buffer[this.out % this.legthBuffer];
+                this.out++;
             } finally {
                 await this.criticalRegion.release();
             }
